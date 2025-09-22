@@ -48,6 +48,19 @@ docker build -t postman-clientcert:latest .
 ```
 
 ## Lancer un test de ce PoC
+
+### Créer un certificat serveur TLS avec tous les domaines pour lesquels injecter un certificat client
+Le script create-server-cert.sh permet de faire cela :
+```
+W11% create-server-cert.sh wps-psc.dmp.monespacesante.fr www.x.org
+```
+Cela crée certs/server-cert.pem et certs/server-key.pem incluant dans ses SANs tous les domaines passés en paramètres.
+
+### Rediriger vers le contenu haproxy
+
+Pour rediriger les flux TLS dans lesquels injecter les certificats clients, il faut rajouter dans le fichier hosts les domaines concernés en les associant à l'adresse de loopback (127.0.0.1) :
+127.0.0.1 wps-psc.dmp.monespacesante.fr www.x.org
+
 ### Lancer un serveur web local
 Ce serveur local écoute sur le port TCP/443, il utilise le champ SNI pour décider vers quel serveur renvoyer la connexion et quel certificat client injecter.
 ```
@@ -130,4 +143,10 @@ http-response set-status 503 reason "Service Unavailable"
 [NOTICE]   (1) : Initializing new worker (10)
 [NOTICE]   (1) : Loading success.
 ```
+
+### Invoquer les cibles
+
+L'injection des certificats clients est automatique : il suffit d'invoquer l'URL cible, comme https://wps-psc.dmp.monespacesante.fr/
+Le flux est automatiquement renvoyé vers le serveur haproxy local, qui analyse le champ SNI, et injecte alors le certificat adéquat.
+
 
