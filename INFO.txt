@@ -1,0 +1,3 @@
+
+Exemple d'authentification client SSL :
+curl -E certs/cert.pem --key certs/key.pem https://wps-psc.dmp.monespacesante.fr/
